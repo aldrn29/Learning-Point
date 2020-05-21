@@ -33,9 +33,16 @@ function handleLocalMediaStreamError(error) {
   console.log('navigator.getUserMedia error: ', error);
 }
 
+// 버튼 정의
+const startButton = document.getElementById('startButton');
+
 // 미디어 스트림 초기화
-navigator.mediaDevices.getUserMedia(mediaStreamConstraints)
-  .then(gotLocalMediaStream).catch(handleLocalMediaStreamError);
+function startAction() {
+  startButton.disabled = true;
+  navigator.mediaDevices.getUserMedia(mediaStreamConstraints)
+    .then(gotLocalMediaStream).catch(handleLocalMediaStreamError);
+  trace('Requesting local stream.');
+}
   /* Navigator.mediaDevices는 읽기 전용 프로퍼티이며 MediaDevices 객체를 리턴한다.
   미디어 입력장치에 접근할 수 있도록 한다.
   */
@@ -44,3 +51,14 @@ navigator.mediaDevices.getUserMedia(mediaStreamConstraints)
   성공하면 위에 정의한 function gotLocalMediaStream을 통해 MediaStream 이 반환된다.
   이는 srcObject속성을 통해 미디어 요소에서 사용할 수 있다.
   */
+
+ // 버튼 클릭 이벤트 핸들러
+ startButton.addEventListener('click', startAction);
+
+ // 콘솔 로그 추적을 위한 함수
+function trace(text) {
+  text = text.trim();
+  const now = (window.performance.now() / 1000).toFixed(3);
+
+  console.log(now, text);
+}
