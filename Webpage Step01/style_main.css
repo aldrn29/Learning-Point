@@ -8,9 +8,15 @@ a {
 h1 {
   font-size: 45px;
   text-align: center;
-  border-bottom: 1px solid gray;
+  /* border-bottom: 1px solid gray; */
   margin: 0;
   padding: 20px;
+}
+h1:after {
+  content: "";
+  display: block;
+  width: xxx;
+  border-bottom: xxx;
 }
 div{
   border: 1px solid gray;
