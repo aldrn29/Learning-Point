@@ -2,7 +2,6 @@
 //main.html은  index.html에서 입력된 방명이 전달되도록 수정되어야 한다.
 
 // Set up media stream constant and parameters.
-
 // In this codelab, you will be streaming video only: "video: true".
 // Audio will not be streamed because it is set to "audio: false" by default.-> audio가 false니 true로 수정하기..
 const mediaStreamConstraints = {
