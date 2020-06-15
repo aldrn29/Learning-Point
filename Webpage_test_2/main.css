@@ -1,0 +1,31 @@
+body {
+    font-family: sans-serif;
+}
+
+canvas {
+    max-width: 100%;
+    width: 320px;
+}
+
+video {
+    max-width: 100%;
+    width: 320px;
+}
+
+#index {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 30px;
+  font-style: italic;
+}
+
+#camera {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 450px;
+}
+
+div {
+  border: 1px solid #4f87ba;
+  padding: 1px;
+}

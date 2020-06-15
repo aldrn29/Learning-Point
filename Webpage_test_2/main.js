@@ -34,36 +34,30 @@ remoteVideo.addEventListener('resize', () => {
     console.log(`Remote video size changed to ${remoteVideo.videoWidth}x${remoteVideo.videoHeight}`);
 });
 
+// socket
 socket.on('connect', function () {
     socket.emit("onCollabo", socket.id);
 });
-
 socket.on('collabo', function (room) {
     socket.emit('create or join', room);
     console.log('Attempted to create or  join room', room);
 });
-
-
 socket.on('created', function (room) {
     console.log('Created room ' + room);
     isInitiator = true;
 });
-
 socket.on('full', function (room) {
     console.log('Room ' + room + ' is full');
 });
-
 socket.on('join', function (room) {
     console.log('Another peer made a request to join room ' + room);
     console.log('This peer is the initiator of room ' + room + '!');
     isChannelReady = true;
 });
-
 socket.on('joined', function (room) {
     console.log('joined: ' + room);
     isChannelReady = true;
 });
-
 socket.on('log', function (array) {
     console.log.apply(console, array);
 });
