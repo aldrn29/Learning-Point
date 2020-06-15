@@ -34,7 +34,7 @@ div{
   text-shadow: 3px 0 0 rgba(white, .5);
 }
 .container {
-  //border: 1px solid pink;
+  border: 1px solid pink;
   display:grid;
   padding: 3px;
   grid-template-rows: 130px 250px;
