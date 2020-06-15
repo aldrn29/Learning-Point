@@ -8,9 +8,17 @@
 
 <body>
   <h1><a href="index.html">Learning Point</a></h1>
+
   <button id="startButton">Start</button>
   <button id="callButton">Call</button>
   <button id="hangupButton">Hang Up</button>
+  <!-- recode -->
+  <div>
+    <button id="record" disabled>Start Recording</button>
+    <button id="play" disabled>Play</button>
+    <button id="download" disabled>Download</button>
+  </div>
+
   <div class="container">
 
     <div class="item">
@@ -25,7 +33,10 @@
       <video id="localVideo" autoplay playsinline></video>
     </div>
     <div class="item">공유자 화면</div>
-    <div class="item">설정</div>
+    <div class="item">
+      <video id="gum" autoplay></video>
+      <video id="recorded" autoplay></video>
+    </div>
   </div>
   <p>
     by KOREA AEROSPACE UNIVERSITY
