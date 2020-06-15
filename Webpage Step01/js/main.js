@@ -6,6 +6,7 @@
 // Audio will not be streamed because it is set to "audio: false" by default.-> audio가 false니 true로 수정하기..
 const mediaStreamConstraints = {
   video: true,
+  audio: true
 };
 
 // Set up to exchange only video.
@@ -35,7 +36,15 @@ function gotLocalMediaStream(mediaStream) {
   localStream = mediaStream;
   trace('Received local stream.');
   callButton.disabled = false;  // Enable call button.
+  recordButton.disabled = false;
+  window.stream = mediaStream;
+  if (window.URL) {
+    gumVideo.src = window.URL.createObjectURL(mediaStream);
+  } else {
+    gumVideo.src = mediaStream;
+  }
 }
+
 
 // Handles error by logging a message to the console.
 function handleLocalMediaStreamError(error) {
@@ -305,30 +314,6 @@ var downloadButton = document.querySelector('button#download');
 recordButton.onclick = toggleRecording;
 playButton.onclick = play;
 downloadButton.onclick = download;
-
-var constraints = {
-  audio: true,
-  video: true
-};
-
-function handleSuccess(stream) {
-  recordButton.disabled = false;
-  console.log('getUserMedia() got stream: ', stream);
-  window.stream = stream;
-
-  if (window.URL) {
-    gumVideo.src = window.URL.createObjectURL(stream);
-  } else {
-    gumVideo.src = stream;
-  }
-}
-
-function handleError(error) {
-  console.log('navigator.getUserMedia error: ', error);
-}
-
-navigator.mediaDevices.getUserMedia(constraints).
-    then(handleSuccess).catch(handleError);
 
 function handleSourceOpen(event) {
   console.log('MediaSource opened');
