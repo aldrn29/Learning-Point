@@ -22,7 +22,7 @@
   <div class="container">
 
     <div class="item">
-      <video playsinline id="remoteVideo" controls preload="metadata" autoplay></video>
+      <video playsinline id="remoteVideo" controls preload="metadata"></video>
     </div>
     <div class="item">1</div>
     <div class="item">2</div>
@@ -32,10 +32,11 @@
       <!-- 디바이스 카메라 연결-->
       <video id="localVideo" autoplay playsinline></video>
     </div>
-    <div class="item">공유자 화면</div>
+    <div class="item">
+      <video id="recorded" width="640" height="320"autoplay></video>
+    </div>
     <div class="item">
       <video id="gum" autoplay></video>
-      <video id="recorded" autoplay></video>
     </div>
   </div>
   <p>
