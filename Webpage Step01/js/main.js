@@ -333,7 +333,11 @@ recordedVideo.addEventListener('error', function(ev) {
     + '\n\n media clip. event: ' + JSON.stringify(ev));
 }, true);
 
-//녹화되어온 매 timeslice 밀리세컨마다 작동하는 이벤트 핸들러
+// 녹화되어온 매 timeslice 밀리세컨마다 작동하는 이벤트 핸들러
+/*
+startRecording()함수 안에 들어가며 blob 객체에 데이터를 담는다
+recordedBlobs 객체는 녹화 영상 재생, 다운로드의 소스가 된다.
+*/
 function handleDataAvailable(event) {
   if (event.data && event.data.size > 0) {
     recordedBlobs.push(event.data);
@@ -357,10 +361,7 @@ function toggleRecording() {
   }
 }
 
-// 녹화 시작
-/*
-  Blob타입 요소가 담기는 배열에 녹화한 데이터를 담는다.
-*/
+//녹화 시작 함수
 function startRecording() {
   recordedBlobs = [];
   var options = {mimeType: 'video/mp4;codecs=vp9'};
@@ -403,19 +404,21 @@ function startRecording() {
   console.log('MediaRecorder started', mediaRecorder);
 }
 
-//녹화종료
+//녹화 종료 함수
 function stopRecording() {
   mediaRecorder.stop();
   console.log('Recorded Blobs: ', recordedBlobs);
   recordedVideo.controls = true;
 }
 
+//녹화 영상 재생 함수
 function play() {
+  //Blob 영상과 같은 바이너리 데이터를 담을 수 있는 객
   var superBuffer = new Blob(recordedBlobs, { type: 'video/mp4' });
-  //Blob 영상과 같은 바이너리 데이터를 담을 수 있는 객체
   recordedVideo.src = window.URL.createObjectURL(superBuffer);
 }
 
+//녹화 영상 다운로드 함수
 function download() {
   var blob = new Blob(recordedBlobs, { type: 'video/mp4' });
   var url = window.URL.createObjectURL(blob);
