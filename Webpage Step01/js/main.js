@@ -296,6 +296,9 @@ function trace(text) {
 
 
 // Recording
+
+// MediaSource 객체는 HTML의 미디어요소에 들어가는 데이터이다.
+
 var mediaSource = new MediaSource();
 
 mediaSource.addEventListener('sourceopen', handleSourceOpen, false);
@@ -315,12 +318,14 @@ recordButton.onclick = toggleRecording;
 playButton.onclick = play;
 downloadButton.onclick = download;
 
+//Source Buffer로 새로운 미디어 소스를 만든다.
 function handleSourceOpen(event) {
   console.log('MediaSource opened');
   sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs="vp8"');
   console.log('Source buffer: ', sourceBuffer);
 }
 
+//에러 처리
 recordedVideo.addEventListener('error', function(ev) {
   console.error('MediaRecording.recordedMedia.error()');
 
@@ -328,16 +333,19 @@ recordedVideo.addEventListener('error', function(ev) {
     + '\n\n media clip. event: ' + JSON.stringify(ev));
 }, true);
 
+//녹화되어온 매 timeslice 밀리세컨마다 작동하는 이벤트 핸들러
 function handleDataAvailable(event) {
   if (event.data && event.data.size > 0) {
     recordedBlobs.push(event.data);
   }
 }
 
+//녹화 종료에 대한 이벤트 핸들러
 function handleStop(event) {
   console.log('Recorder stopped: ', event);
 }
 
+//로컬 카메라 녹화 시작, 종료 기능(토글)
 function toggleRecording() {
   if (recordButton.textContent === 'Start Recording') {
     startRecording();
@@ -349,10 +357,15 @@ function toggleRecording() {
   }
 }
 
+// 녹화 시작
+/*
+  Blob타입 요소가 담기는 배열에 녹화한 데이터를 담는다.
+*/
 function startRecording() {
   recordedBlobs = [];
   var options = {mimeType: 'video/mp4;codecs=vp9'};
 
+  //예외 처리
   if (!MediaRecorder.isTypeSupported(options.mimeType))
   {
     console.log(options.mimeType + ' is not Supported');
@@ -369,6 +382,7 @@ function startRecording() {
     }
   }
 
+  //미디어 녹화를 위한 MediaRecorder 객체 생성
   try {
     mediaRecorder = new MediaRecorder(window.stream, options);
   } catch (e) {
@@ -382,12 +396,14 @@ function startRecording() {
   recordButton.textContent = 'Stop Recording';
   playButton.disabled = true;
   downloadButton.disabled = true;
+  //이벤트 핸들러 부착
   mediaRecorder.onstop = handleStop;
   mediaRecorder.ondataavailable = handleDataAvailable;
-  mediaRecorder.start(10); // collect 10ms of data
+  mediaRecorder.start(10); // 10밀리세컨 단위로 timeslice. 녹화시작
   console.log('MediaRecorder started', mediaRecorder);
 }
 
+//녹화종료
 function stopRecording() {
   mediaRecorder.stop();
   console.log('Recorded Blobs: ', recordedBlobs);
@@ -395,7 +411,8 @@ function stopRecording() {
 }
 
 function play() {
-    var superBuffer = new Blob(recordedBlobs, { type: 'video/mp4' });
+  var superBuffer = new Blob(recordedBlobs, { type: 'video/mp4' });
+  //Blob 영상과 같은 바이너리 데이터를 담을 수 있는 객체
   recordedVideo.src = window.URL.createObjectURL(superBuffer);
 }
 
