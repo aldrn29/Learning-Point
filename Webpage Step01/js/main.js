@@ -413,7 +413,7 @@ function stopRecording() {
 
 //녹화 영상 재생 함수
 function play() {
-  //Blob 영상과 같은 바이너리 데이터를 담을 수 있는 객
+  //Blob 영상과 같은 바이너리 데이터를 담을 수 있는 객체
   var superBuffer = new Blob(recordedBlobs, { type: 'video/mp4' });
   recordedVideo.src = window.URL.createObjectURL(superBuffer);
 }
