@@ -4,13 +4,25 @@
   <title>Learning Point</title>
   <meta charset="utf-8">
   <link rel="stylesheet" href="css/style_index.css">
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-149631135-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-149631135-1');
+</script>
 </head>
 <body>
-  <h1><a href="index.html">Learning Point</a></h1>
-  <ol><a href="main.html">New</a></ol>
-  <p>
-    by KOREA AEROSPACE UNIVERSITY
-  </p>
+  <h1><a id="h" href="index.html">Learning Point</a></h1>
+  <hr>
+  <div></br></br>Please click the button.</br>by KOREA AEROSPACE UNIVERSITY</div>
+  <div>
+    <button><a href="main.html">Join</a></button>
+  </div>
+
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
   <script src="js/roomName.js"></script>
