@@ -1,15 +1,14 @@
 var app = require('express')()
 var http = require('http').Server(app)
-var io = require('socket.io')(http)
+const io = require('socket.io')(http)
+const RTCMultiConnectionServer = require('rtcmulticonnection-server')
 
 app.get('/', function(req, res){
     res.sendFile(__dirname + '/index.html')
 })
 io.on('connection', function(socket){
+    RTCMultiConnectionServer.addSocket(socket)
     console.log('a user connected')
-    socket.on('disconnect', function(){ // 뭘 넣어야 작동을 할까
-        console.log('user disconnected')
-    })
     socket.on('chat message', function(msg){
         io.emit('chat message', msg)
         console.log('message:' + msg)
