@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html>
+<title>Seoultech Broadcast System</title>
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" type="text/css" href="../../valiant360/css/valiant360.css"/>
+<script src="../../socket.io/socket.io.js"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<!--<script src="../chatData.js"></script>-->
+<script type="text/javascript" src="../../valiant360/js/three.min.js"></script>
+<script type="text/javascript" src="../../valiant360/jquery.valiant360.js"></script>
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+<style>
+    body, h1, h2, h3, h4, h5, h6 {
+        font-family: "Raleway", sans-serif
+    }
+
+    body, html {
+        height: 100%;
+        line-height: 1.8;
+    }
+
+    .w3-bar .w3-button {
+        padding: 16px;
+    }
+
+    video {
+        width: 100%;
+        max-width: 720px;
+        height: auto;
+
+    }
+
+    #msgs {
+        height: 100%;
+        max-height: 100px;
+        overflow-y: scroll;
+    }
+</style>
+<body>
+<!-- Navbar (sit on top) -->
+<div class="w3-top">
+    <div class="w3-bar w3-white w3-card" id="myNavbar">
+        <a href="../pbp.html" class="w3-bar-item w3-button w3-wide">SEOULTECH Live System</a>
+        <!-- Right-sided navbar links -->
+        <div class="w3-right w3-hide-small">
+            <a href="../about.html" class="w3-bar-item w3-button">ABOUT</a>
+            <a href="../openpose.html" class="w3-bar-item w3-button"> POSE RECOGNITION</a>
+            <a href=".././Virtual/index.html" class="w3-bar-item w3-button"> WebVR</a>
+            <a href="../audio2.html" class="w3-bar-item w3-button"> SPATIAL AUDIO</a>
+            <a href="../chat.html" class="w3-bar-item w3-button"> ANALYSIS</a>
+            <a href=".././collabo/collabo.html" class="w3-bar-item w3-button"> COLLABO</a>
+            <a href="../contact.html" class="w3-bar-item w3-button"> CONTACT</a>
+        </div>
+        <!-- Hide right-floated links on small screens and replace them with a menu icon -->
+
+        <a href="javascript:void(0)" class="w3-bar-item w3-button w3-right w3-hide-large w3-hide-medium"
+           onclick="w3_open()">
+            <i class="fa fa-bars"></i>
+        </a>
+    </div>
+</div>
+
+<!-- Sidebar on small screens when clicking the menu icon -->
+<nav class="w3-sidebar w3-bar-block w3-black w3-card w3-animate-left w3-hide-medium w3-hide-large" style="display:none"
+     id="mySidebar">
+    <a href="javascript:void(0)" onclick="w3_close()" class="w3-bar-item w3-button w3-large w3-padding-16">Close ×</a>
+    <a href="../about.html" onclick="w3_close()" class="w3-bar-item w3-button">ABOUT</a>
+    <a href="../openpose.html" onclick="w3_close()" class="w3-bar-item w3-button">POSE RECOGNITION</a>
+    <a href=".././Virtual/index.html" onclick="w3_close()" class="w3-bar-item w3-button"> WebVR</a>
+    <a href="../audio2.html" onclick="w3_close()" class="w3-bar-item w3-button">SPATIAL AUDIO</a>
+    <a href="../chat.html" onclick="w3_close()" class="w3-bar-item w3-button">ANALYSIS</a>
+    <a href=".././collabo/collabo.html" onclick="w3_close()" class="w3-bar-item w3-button"> COLLABO</a>
+    <a href="../contact.html" onclick="w3_close()" class="w3-bar-item w3-button">CONTACT</a>
+</nav>
+
+<div class="w3-container w3-light-grey" style="padding:128px 16px" id="contact">
+    <h3 class="w3-center">합동방송</h3>
+    <p class="w3-center w3-large">[Analysis + Spatial Audio]</p>
+    <div class="w3-row-padding" style="margin-top:64px">
+
+        <div class="w3-half">
+            <video playsinline id="left_cam" controls preload="metadata" autoplay></video>
+        </div>
+
+        <div class="w3-half">
+            <video playsinline id="right_cam" controls preload="metadata" autoplay></video>
+            <!--style="width: 100%; max-width:720px; height:377px;">-->
+
+        </div>
+
+        <div class="w3-row">
+            <b>
+                Send message
+            </b>
+            <div id="msgs">
+            </div>
+            <p id="message_box">
+                <span></span>
+                <br/>
+                <input type="text" id="msgbox"/>
+                <button id="enter" class="w3-button w3-blue-gray" style="padding-top:4.5px; padding-bottom: 4px;">
+                    입력
+                </button>
+            </p>
+        </div>
+        <script type="text/javascript">
+            var socket = io();
+
+            var input_nickname = "";
+
+            $("#message_box span").text(input_nickname);
+            $("#msgbox").keyup(function (event) {
+                if (event.which == 13) {
+                    socket.emit('session2', {msg: input_nickname + ":" + $('#msgbox').val()});
+                    $("#msgs").scrollTop($("#msgs")[0].scrollHeight);
+                    $('#msgbox').val('');
+                }
+            });
+            $("#enter").click(function () {
+                socket.emit('session2', {msg: input_nickname + ":" + $('#msgbox').val()});
+                console.log(input_nickname + ":" + $('#msgbox').val());
+                $("#msgs").scrollTop($("#msgs")[0].scrollHeight);
+                $('#msgbox').val('');
+            });
+
+            var isChannelReady = false;
+            var isInitiator = false;
+            var isStarted = false;
+            var localStream;
+            var pc;
+            var remoteStream;
+
+            var remoteVideo = document.getElementById('right_cam');
+            var localVideo = document.getElementById('left_cam');
+
+            var pcConfig = {
+                'iceServers': [{
+                    urls: 'stun:stun.l.google.com:19302'
+                },
+                {urls: "turn:numb.viagenie.ca",
+                credential: "muazkh",
+                username: "webrtc@live.com"}
+                ]};
+
+            var sdpConstraints = {
+                offerToReceiveAudio: true,
+                offerToReceiveVideo: true
+            };
+
+            localVideo.addEventListener("loadedmetadata", function () {
+                console.log('left: gotStream with width and height:', localVideo.videoWidth, localVideo.videoHeight);
+            });
+
+            remoteVideo.addEventListener("loadedmetadata", function () {
+                console.log('right: gotStream with width and height:', remoteVideo.videoWidth, remoteVideo.videoHeight);
+            });
+
+            remoteVideo.addEventListener('resize', () => {
+                console.log(`Remote video size changed to ${remoteVideo.videoWidth}x${remoteVideo.videoHeight}`);
+            });
+
+            socket.on('connect', function () {
+                socket.emit("onCollabo", socket.id);
+            });
+
+            socket.on('collabo', function (room) {
+                socket.emit('create or join', room);
+                console.log('Attempted to create or  join room', room);
+            });
+
+
+            socket.on('created', function (room) {
+                console.log('Created room ' + room);
+                isInitiator = true;
+            });
+
+            socket.on('full', function (room) {
+                console.log('Room ' + room + ' is full');
+            });
+
+            socket.on('join', function (room) {
+                console.log('Another peer made a request to join room ' + room);
+                console.log('This peer is the initiator of room ' + room + '!');
+                isChannelReady = true;
+            });
+
+            socket.on('joined', function (room) {
+                console.log('joined: ' + room);
+                isChannelReady = true;
+            });
+
+            socket.on('log', function (array) {
+                console.log.apply(console, array);
+            });
+
+            function sendMessage(message) {
+                console.log('Client sending message: ', message);
+                socket.emit('message', message);
+            }
+
+            // This client receives a message
+            socket.on('message', function (message) {
+                console.log('Client received message:', message);
+                if (message === 'got user media') {
+                    maybeStart();
+                } else if (message.type === 'offer') {
+                    if (!isInitiator && !isStarted) {
+                        maybeStart();
+                    }
+                    pc.setRemoteDescription(new RTCSessionDescription(message));
+                    doAnswer();
+                } else if (message.type === 'answer' && isStarted) {
+                    pc.setRemoteDescription(new RTCSessionDescription(message));
+                } else if (message.type === 'candidate' && isStarted) {
+                    var candidate = new RTCIceCandidate({
+                        sdpMLineIndex: message.label,
+                        candidate: message.candidate
+                    });
+                    pc.addIceCandidate(candidate);
+                } else if (message === 'bye' && isStarted) {
+                    handleRemoteHangup();
+                }
+            });
+
+            navigator.mediaDevices.getUserMedia({
+                audio: false,
+                video: true
+            })
+                .then(gotStream)
+                .catch(function (e) {
+                    alert('getUserMedia() error: ' + e.name);
+                });
+
+            function gotStream(stream) {
+                console.log('Adding local stream.');
+                localStream = stream;
+                localVideo.srcObject = stream;
+                sendMessage('got user media');
+                if (isInitiator) {
+                    maybeStart();
+                }
+            }
+
+            var constraints = {
+                video: true
+            };
+
+            console.log('Getting user media with constraints', constraints);
+
+            if (location.hostname !== 'localhost') {
+                requestTurn(
+                    "stun:stun.l.google.com:19302"
+                );
+            }
+
+            function maybeStart() {
+                console.log('>>>>>>> maybeStart() ', isStarted, localStream, isChannelReady);
+                if (!isStarted && typeof localStream !== 'undefined' && isChannelReady) {
+                    console.log('>>>>>> creating peer connection');
+                    createPeerConnection();
+                    pc.addStream(localStream);
+                    isStarted = true;
+                    console.log('isInitiator', isInitiator);
+                    if (isInitiator) {
+                        doCall();
+                    }
+                }
+            }
+
+            window.onbeforeunload = function () {
+                sendMessage('bye');
+            };
+
+            /////////////////////////////////////////////////////////
+
+            function createPeerConnection() {
+                try {
+                    pc = new RTCPeerConnection(pcConfig);
+                    pc.onicecandidate = handleIceCandidate;
+                    pc.onaddstream = handleRemoteStreamAdded;
+                    pc.onremovestream = handleRemoteStreamRemoved;
+                    console.log('Created RTCPeerConnnection');
+                } catch (e) {
+                    console.log('Failed to create PeerConnection, exception: ' + e.message);
+                    alert('Cannot create RTCPeerConnection object.');
+                    return;
+                }
+            }
+
+            function handleIceCandidate(event) {
+                console.log('icecandidate event: ', event);
+                if (event.candidate) {
+                    sendMessage({
+                        type: 'candidate',
+                        label: event.candidate.sdpMLineIndex,
+                        id: event.candidate.sdpMid,
+                        candidate: event.candidate.candidate
+                    });
+                } else {
+                    console.log('End of candidates.');
+                }
+            }
+
+            function handleCreateOfferError(event) {
+                console.log('createOffer() error: ', event);
+            }
+
+            function doCall() {
+                console.log('Sending offer to peer');
+                pc.createOffer(setLocalAndSendMessage, handleCreateOfferError);
+            }
+
+            function doAnswer() {
+                console.log('Sending answer to peer.');
+                pc.createAnswer().then(
+                    setLocalAndSendMessage,
+                    onCreateSessionDescriptionError
+                );
+            }
+
+            function setLocalAndSendMessage(sessionDescription) {
+                pc.setLocalDescription(sessionDescription);
+                console.log('setLocalAndSendMessage sending message', sessionDescription);
+                sendMessage(sessionDescription);
+            }
+
+            function onCreateSessionDescriptionError(error) {
+                trace('Failed to create session description: ' + error.toString());
+            }
+
+            /*turn 서버 요청 CORS 문제 발생*/
+            function requestTurn(turnURL) {
+                var turnExists = true;
+                // for (var i in pcConfig.iceServers) {
+                //     if (pcConfig.iceServers[i].urls.substr(0, 5) === 'stun:') {
+                //         turnExists = true;
+                //         turnReady = true;
+                //         console.log("Exist stun server");
+                //         break;
+                //     }
+                // }
+                if (!turnExists) {
+                    // console.log('Getting TURN server from ', turnURL);
+                    // // No TURN server. Get one from computeengineondemand.appspot.com:
+                    // var xhr = new XMLHttpRequest();
+                    // xhr.onreadystatechange = function() {
+                    //     if (xhr.readyState === 4 && xhr.status === 200) {
+                    //         var turnServer = JSON.parse(xhr.responseText);
+                    //         console.log('Got TURN server: ', turnServer);
+                    //         pcConfig.iceServers.push({
+                    //             'urls': 'turn:' + turnServer.username + '@' + turnServer.turn,
+                    //             'credential': turnServer.password
+                    //         });
+                    //         turnReady = true;
+                    //     }
+                    // };
+                    //
+                    // xhr.open('GET', turnURL, true);
+                    // xhr.send();
+                }
+            }
+
+            function handleRemoteStreamAdded(event) {
+                console.log('Remote stream added.');
+                remoteStream = event.stream;
+                console.log(event);
+                remoteVideo.srcObject = remoteStream;
+            }
+
+            function handleRemoteStreamRemoved(event) {
+                console.log('Remote stream removed. Event: ', event);
+            }
+
+            function hangup() {
+                console.log('Hanging up.');
+                stop();
+                sendMessage('bye');
+            }
+
+            function handleRemoteHangup() {
+                console.log('Session terminated.');
+                stop();
+                isInitiator = false;
+            }
+
+            function stop() {
+                isStarted = false;
+                pc.close();
+                pc = null;
+            }
+
+
+        </script>
+        <div id="id01" class="w3-modal">
+            <div class="w3-modal-content" style="width:600px">
+
+                <div class="w3-container" style="">
+          <span onclick="document.getElementById('id01').style.display='block'"
+                class="w3-button w3-display-topright">&times;</span>
+                    <center>
+                        <p style="margin-bottom: 0px;">닉네임을 입력하세요</p>
+                        <!--<input id="nick_name" type="text" style=black/>-->
+                        <button id="nick_name_button" class="w3-button w3-blue-gray" style="padding-top: 4px;
+        padding-bottom: 4px; padding-right: 3px; padding-left: 3px;">확인
+                        </button>
+                    </center>
+                </div>
+            </div>
+        </div>
+
+
+        <script>
+            var chatCount = 0
+            var appendedIndex = 0;
+            setInterval(function () {
+                if (chatCount <= Object.keys(chatData).length) {
+                    while (chatData[chatCount + appendedIndex][0].chattime === chatCount) {
+                        $("#msgs").append(chatData[chatCount + appendedIndex][0].user + ": " + chatData[chatCount + appendedIndex][0].comment + "<br/>")
+                        console.log(chatData[chatCount + appendedIndex][0])
+                        appendedIndex++;
+                    }
+                    chatCount++;
+                    $("#msgs").scrollTop($("#msgs")[0].scrollHeight + 20);
+                }
+            }, 1000);
+
+            $(document).ready(function () {
+                $('.valiantPhoto').Valiant360();
+                $(window).resize(function () {
+                    $("#right_video").height($("#left_video").height());
+                    $("#right_video canvas").height($("#left_video").height());
+                })
+                setTimeout(function () {
+                    $("#right_video").height($("#left_video").height());
+                    $("#right_video canvas").height($("#left_video").height());
+                }, 300)
+            });
+        </script>
+    </div>
+</div>
+</div>
+
+<footer class="w3-center w3-black w3-padding-64">
+    <a href="chat.html" class="w3-button w3-light-grey"><i class="fa fa-arrow-up w3-margin-right"></i>To the top</a>
+</footer>
+
+
+<script>
+
+    // Modal Image Gallery
+    function onClick(element) {
+        document.getElementById("img01").src = element.src;
+        document.getElementById("modal01").style.display = "block";
+        var captionText = document.getElementById("caption");
+        captionText.innerHTML = element.alt;
+    }
+
+
+    // Toggle between showing and hiding the sidebar when clicking the menu icon
+    var mySidebar = document.getElementById("mySidebar");
+
+    function w3_open() {
+        if (mySidebar.style.display === 'block') {
+            mySidebar.style.display = 'none';
+        } else {
+            mySidebar.style.display = 'block';
+        }
+    }
+
+    // Close the sidebar with the close button
+    function w3_close() {
+        mySidebar.style.display = "none";
+    }
+</script>
+<!--
+To use this code on your website, get a free API key from Google.
+Read more at: https://www.w3schools.com/graphics/google_maps_basic.asp
+-->
+
+</body>
+</html>

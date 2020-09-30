@@ -1,0 +1,19 @@
+[reference 사용 전 환경 설정]
+OpenSSL-Win64 실행 후, 다운로드한 디렉토리 경로 시스템 변수의 환경변수로 등록하기. 
+
+ex) C:\Program Files\OpenSSL-Win64 
+
+
+[reference run 방법]
+node app.js 터미널 입력 후,
+https://localhost:8443/c 실행. 
+
+
++[windows 환경에서 SSL 인증서 받는 방법 ]
+
+저장하고자 하는 경로 >openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 
+
+key.pem, cert.pem 파일이 저장됨.
+
+참조 : https://hackernoon.com/set-up-ssl-in-nodejs-and-express-using-openssl-f2529eab5bb
+
