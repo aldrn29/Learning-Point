@@ -1,0 +1,40 @@
+body {
+  margin: 5;
+  background-color:#3C3C3E;
+}
+a {
+  color:black;
+  text-decoration: none;
+}
+#h {
+  color:linen;
+}
+h1 {
+  color:linen;
+  font-size: 45px;
+  text-align: center;
+  /* border-bottom: 1px solid gray; */
+  margin: 0;
+  padding: 20px;
+}
+ol {
+  border-right: 1px solid gray;
+  width:150px;
+  margin: 0;
+  padding: 150px;
+}
+
+div {
+  text-align: center;
+  margin-top: 30px;
+  font-size: 20px;
+  font-style: italic;
+}
+
+button {
+  font-size: 20px;
+  font-style: italic;
+  width: 100px;
+  height: 50px;
+  border-radius: 5px;
+}
